@@ -1,0 +1,36 @@
+version: '3.8' # Версия DockerCompose файла
+services:
+  task-db:
+    image: postgres:16-alpine
+    container_name: task-db
+    volumes:
+      - task-db:/var/lib/postgresql/data # Хранилище данных в виде volume
+    ports:
+      - "6540:5432"
+    environment:
+      - POSTGRES_DB=task-main
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+
+  task-app:
+    build:
+      context: . # Путь к Dockerfile Java-приложения
+      dockerfile: Dockerfile
+    container_name: task-app
+    depends_on:
+      - task-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://task-db:5432/task-main
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    ports:
+      - "8080:8080"
+        #networks:
+    #  - task-network
+
+volumes:
+  task-db:
+
+#networks:
+#  task-network:
+#    driver: bridge
