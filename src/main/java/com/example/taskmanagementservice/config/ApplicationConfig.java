@@ -15,7 +15,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> userRepository.findByEmail(email)
-                .orElseThrow(EmailNotFoundException::new);
+                .orElseThrow(() -> new EmailNotFoundException("saf"));
     }
 
 }

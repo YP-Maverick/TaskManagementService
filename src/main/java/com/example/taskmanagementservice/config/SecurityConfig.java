@@ -41,20 +41,22 @@ public class SecurityConfig {
         http
                 // Отключаем CSRF (для REST API)
                 .csrf(csrf -> csrf.disable())
-
-                // Настройка авторизаций запросов
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITE_LIST_URL).permitAll() // Публичные URIs
 
-                        .requestMatchers(POST, "/api/v1/tasks/**").hasRole("ADMIN") // Управление задачами (создание)
-                        .requestMatchers(PUT, "/api/v1/tasks/**").hasRole("ADMIN") // Управление задачами (редактирование)
-                        .requestMatchers(DELETE, "/api/v1/tasks/**").hasRole("ADMIN") // Управление задачами (удаление)
-                        .requestMatchers(GET, "/api/v1/tasks/**").hasRole("ADMIN") // TODO
+                        .requestMatchers(GET, "/api/v1/tasks/{taskId}/performer").hasRole("USER")
+                        .requestMatchers(PUT, "/api/v1/tasks/{taskId}/status").hasRole("USER")
+
+                        .requestMatchers(POST, "/api/v1/tasks/**").hasRole("ADMIN")
+                        .requestMatchers(PUT, "/api/v1/tasks/**").hasRole("ADMIN")
+                        .requestMatchers(DELETE, "/api/v1/tasks/**").hasRole("ADMIN")
+                        .requestMatchers(GET, "/api/v1/tasks/**").hasRole("ADMIN")
 
                         .requestMatchers(POST, "/api/v1/comments/**").hasRole("ADMIN")
                         .requestMatchers(DELETE, "/api/v1/comments/**").hasRole("ADMIN")
                         .requestMatchers(GET, "/api/v1/comments/**").hasRole("ADMIN")
-                        .anyRequest().authenticated() // Все остальные запросы требуют аутентификации
+
+                        .anyRequest().authenticated()
                 )
 
                 // Настройка сессии: Stateless (для токенов JWT)

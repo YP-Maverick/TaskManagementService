@@ -27,6 +27,8 @@ public class JwtService {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
+    //TODO Перевод комментов
+
     //__________________________
     // Получение из токена
     //__________________________
