@@ -1,17 +1,17 @@
 package com.example.taskmanagementservice.task.dto;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Value;
 
-@Data
+@Value
 @Builder
-public class CreateTaskDto {
+public class TaskDto {
 
+    Long id;
     String title;
     String description;
     String status;
-    String priority;
+    String taskPriority;
     Long authorId;
     Long performerId;
 }
