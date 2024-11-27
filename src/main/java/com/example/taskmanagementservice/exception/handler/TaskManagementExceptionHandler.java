@@ -40,17 +40,6 @@ public class TaskManagementExceptionHandler {
                 "timestamp", LocalDateTime.now().format(Formatter.getFormatter()));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleValid(final MethodArgumentNotValidException e) {
-        log(e);
-        List<String> details = new ArrayList<>();
-        for (ObjectError error : e.getBindingResult().getAllErrors()) {
-            details.add(error.getDefaultMessage());
-        }
-        return createMap("BAD_REQUEST", "Incorrectly made request", details.getFirst());
-    }
-
     @ExceptionHandler({MissingServletRequestParameterException.class,
             MethodArgumentTypeMismatchException.class,
             NotValidException.class})

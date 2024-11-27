@@ -1,6 +1,5 @@
 package com.example.taskmanagementservice.task.model;
 
-import com.example.taskmanagementservice.task.request.CreateTaskRequest;
 import com.example.taskmanagementservice.task.dto.TaskDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,13 +18,6 @@ public interface TaskMapper {
     @Mapping(source = "task.status", target = "status")
     @Mapping(source = "task.taskPriority", target = "taskPriority")
     TaskDto toDto(Task task);
-
-    @Mapping(target = "id", expression = "java(null)")
-    @Mapping(target = "status", constant = "PENDING")
-    @Mapping(target = "taskPriority", expression = "java(TaskPriority.valueOf(createTaskDto.getPriority()))")
-    @Mapping(target = "author.id", source = "createTaskDto.authorId")
-    @Mapping(target = "performer.id", source = "createTaskDto.performerId")
-    Task toTask(CreateTaskRequest createTaskDto);
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "title", source = "title")

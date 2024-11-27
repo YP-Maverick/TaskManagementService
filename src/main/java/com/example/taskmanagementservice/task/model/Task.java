@@ -14,7 +14,7 @@ import lombok.*;
 @Generated
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "tasks")
+@Table(name = "task")
 public class Task {
 
     @Id
