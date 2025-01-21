@@ -4,11 +4,12 @@ import com.example.taskmanagementservice.task.model.TaskPriority;
 import com.example.taskmanagementservice.task.model.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 public class CreateTaskRequest {
 
@@ -20,15 +21,17 @@ public class CreateTaskRequest {
     @Size(max = 5000, message = "Description must not exceed 5000 characters")
     String description;
 
-    @NotBlank
+    @NotNull
     TaskStatus status;
 
-    @NotBlank
+    @NotNull
     TaskPriority priority;
 
     @NotNull
+    @Positive
     Long authorId;
 
     @NotNull
-    Long performerId;
+    @Positive
+    Integer performerId;
 }

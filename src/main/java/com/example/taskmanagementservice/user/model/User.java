@@ -1,39 +1,32 @@
 package com.example.taskmanagementservice.user.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-
 import java.util.Collection;
 import java.util.List;
 
-@Entity
 @Getter
 @Setter
 @Builder
-@Generated
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "_user")
+@ToString
+@Entity
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Email
-    @NotBlank(message = "Email is mandatory")
+    @Column(unique = true)
     private String email;
 
-    @NotBlank(message = "Password is mandatory")
     private String password;
-
-    @Enumerated(EnumType.STRING)
     private Role role;
 
     @Override

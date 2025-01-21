@@ -1,21 +1,17 @@
-package com.example.taskmanagementservice.auth.model;
+package com.example.taskmanagementservice.auth.request;
 
 
 import com.example.taskmanagementservice.user.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class RegisterRequest {
+public class RegistrationResponse {
 
+    private Integer id;
     private String email;
-
-    private String password;
-
     private Role role;
 }

@@ -23,7 +23,6 @@ import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice(assignableTypes = {
-        TaskController.class,
         CommentController.class,
         AuthenticationController.class
 })

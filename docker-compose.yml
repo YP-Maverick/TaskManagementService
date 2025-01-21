@@ -1,4 +1,5 @@
 version: '3.8' # Версия DockerCompose файла
+
 services:
   task-db:
     image: postgres:16-alpine
@@ -20,16 +21,18 @@ services:
     depends_on:
       - task-db
     environment:
+      - SERVER_PORT=9090
       - SPRING_DATASOURCE_URL=jdbc:postgresql://task-db:5432/task-main
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
     ports:
-      - "8080:8080"
+      - "9999:9999"
         #networks:
     #  - task-network
 
 volumes:
   task-db:
+  task-app:
 
 #networks:
 #  task-network:

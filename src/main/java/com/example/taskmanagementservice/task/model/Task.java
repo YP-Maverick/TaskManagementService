@@ -29,13 +29,11 @@ public class Task {
     @Size(max = 5000, message = "Description must not exceed 5000 characters")
     String description;
 
-    @NotNull(message = "Status is mandatory")
     @Enumerated(EnumType.STRING)
     TaskStatus status;
 
-    @NotNull(message = "Priority is mandatory")
     @Enumerated(EnumType.STRING)
-    TaskPriority taskPriority;
+    TaskPriority priority;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
