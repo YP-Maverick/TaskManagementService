@@ -30,7 +30,7 @@ public class TaskServiceImpl implements TaskService {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    private void findUserByEmail(String email) {
+    private void checkUserByEmail(String email) {
         userRepository.findByEmail(email).orElseThrow(
                 () -> new NotFoundException("User not found")
         );
@@ -70,9 +70,8 @@ public class TaskServiceImpl implements TaskService {
         log.info("createTask");
 
         User author = getCurrentUser();
-        log.info("Author: {}", author);
+        checkUserByEmail(author.getEmail());
 
-        findUserByEmail(author.getEmail());
         User performer = findPerformerById(request.getPerformerId());
 
         return taskRepository.save(
@@ -84,9 +83,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task updateTask(Long taskId, UpdateTaskRequest request) {
-        Task existingTask = findTaskById(taskId);
+
         User author = getCurrentUser();
         User performer = findPerformerById(request.getPerformerId());
+
+        Task existingTask = findTaskById(taskId);
+        // TODO Выброс 404
 
         validateAuthorEmail(existingTask.getAuthor().getEmail(), author.getEmail());
         Task updatedTask = createUpdatedTask(request, author, performer, taskId);
@@ -96,6 +98,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task updateTaskStatus(Long taskId, TaskStatus status) {
+
+        // TODO Реализовать логику
         return null;
     }
 
@@ -110,7 +114,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<Task> getAllTasks() {
         //TODO Добавить фильтрацию
-
 
         return taskRepository.findAll();
     }
@@ -128,8 +131,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteTask(Long taskId) {
-        Task existingTask = findTaskById(taskId);
         User author = getCurrentUser();
+        Task existingTask = findTaskById(taskId);
 
         validateAuthorEmail(existingTask.getAuthor().getEmail(), author.getEmail());
         taskRepository.delete(getTaskById(taskId));

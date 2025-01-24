@@ -23,11 +23,16 @@ public class JWTService {
 
     //private final static long refreshExpiration = 1000 * 60 * 60 * 24 * 3L;
 
+    // TODO Вынести константы в парамметры приложения
+    // TODO Добавить JWTRepository
+
 
     public String generateToken(
             String username,
             Map<String, Object> claims
     ) {
+
+        // TODO Добавить токен в хранилище
         return Jwts.builder()
                 .claims()
                 .add(claims)
@@ -64,6 +69,8 @@ public class JWTService {
 
     public boolean validateToken(String token, UserDetails userDetails) {
         final String userName = extractUserName(token);
+
+        //
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 

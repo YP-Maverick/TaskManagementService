@@ -1,7 +1,6 @@
 package com.example.taskmanagementservice.config;
 
 import com.example.taskmanagementservice.auth.service.JwtAuthenticationFilter;
-import com.example.taskmanagementservice.user.model.Role;
 import com.example.taskmanagementservice.user.service.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -55,6 +54,19 @@ public class SecurityConfig {
 
         return provider;
     }
+
+    // Алтернативный бин authenticationManager
+    /*@Bean
+    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+
+        authenticationManagerBuilder
+                .inMemoryAuthentication()
+                .withUser("user").password(passwordEncoder().encode("password")).roles("USER");
+
+        return authenticationManagerBuilder.build();
+    }*/
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
