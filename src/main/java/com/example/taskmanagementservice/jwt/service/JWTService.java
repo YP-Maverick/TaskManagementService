@@ -33,13 +33,22 @@ public class JWTService {
     @Value("${jwt.refresh.duration}")
     private long refreshTokenDuration;
 
-    //private final static long refreshExpiration = 1000 * 60 * 60 * 24 * 3L;
+    private final JWTRepository jwtRepository;
 
     public String generateAccessToken(
             String username,
             Map<String, Object> claims
     ) {
 
+        return Jwts.builder()
+                .claims()
+                .add(claims)
+                .subject(username)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenDuration))
+                .and()
+                .signWith(getAccessKey())
+                .compact();
 
     }
 
@@ -52,11 +61,10 @@ public class JWTService {
                 .add(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenDuration))
                 .and()
-                .signWith(getKey())
+                .signWith(getAccessKey())
                 .compact();
-
     }
 
     private SecretKey getAccessKey() {
@@ -87,12 +95,74 @@ public class JWTService {
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    public boolean validateRefreshToken(String token, UserDetails userDetails) {
+        String userName = extractUserName(token);
+        Token storedToken = jwtRepository.findByToken(token)
+                .orElseThrow(() -> new NotFoundException("Refresh-токен не найден в базе данных"));
+
+        if (isTokenExpired(token)) {
+            storedToken.setExpired(true);
+            storedToken.setRevoked(true);
+            jwtRepository.save(storedToken);
+
+            throw new TokenExpiredException("Token expired");
+        }
+
+        return userName.equals(userDetails.getUsername()) && !storedToken.isRevoked();
+    }
+
+    public void revokeAllUserRefreshTokens(User user) {
+        List<Token> userTokens = jwtRepository.findAllByUser(user)
+                .stream()
+                .filter(token -> token.isRefresh()
+                        && !token.isRevoked()
+                        && !token.expired)
+                .toList();
+
+        userTokens.forEach(token -> {
+            token.setRevoked(true);
+        });
+
+        jwtRepository.saveAll(userTokens);
+    }
+
+
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date(System.currentTimeMillis()));
     }
 
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }
+
+    public void saveRefreshToken(String refreshToken) {
+        jwtRepository.save(
+                Token.builder()
+                        .token(refreshToken)
+                        .isRefresh(true)
+                        .expired(false)
+                        .revoked(false)
+                        .expiresAt(new Date(System.currentTimeMillis() + refreshTokenDuration))
+                        .build()
+        );
+    }
+
+    public String createRefreshToken(String username, Map<String, Object> claims) {
+        String refreshToken = generateRefreshToken(username, claims);
+        saveRefreshToken(refreshToken);
+        return refreshToken;
+    }
+
+    public long getCountActiveRefreshTokenByUser(User user) {
+        return jwtRepository.countByUserAndRevokedFalseAndExpiredFalse(user);
+    }
+
+    public void revokeRefreshToken(String refreshToken) {
+        Token token = jwtRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new NotFoundException("Токен не найден"));
+
+        token.setRevoked(true);
+        jwtRepository.save(token);
     }
 
 }
