@@ -7,6 +7,7 @@ import com.example.taskmanagementservice.auth.request.RegistrationResponse;
 import com.example.taskmanagementservice.auth.service.AuthenticationService;
 import com.example.taskmanagementservice.user.model.User;
 import com.example.taskmanagementservice.user.model.UserMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,6 @@ public class AuthenticationController {
                         authenticationService.register(user)
                 )
         );
-
     }
 
     @PostMapping("/login")
@@ -40,21 +40,17 @@ public class AuthenticationController {
 
         User user = userMapper.toUser(request);
         return ResponseEntity.ok(
-
-                AuthenticationResponse.builder()
-                        .accessToken(authenticationService.login(user))
-                        // TODO Refresh Token
-                        .build()
-
+                authenticationService.login(user)
         );
     }
 
     // TODO Обновление токена
-    /*@PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        service.refreshToken(request, response);
-    }*/
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthenticationResponse> refreshToken(
+            HttpServletRequest request) {
+
+        return  ResponseEntity.ok(
+                authenticationService.refreshToken(request)
+        );
+    }
 }

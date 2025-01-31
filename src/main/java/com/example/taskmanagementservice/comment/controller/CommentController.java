@@ -21,7 +21,7 @@ public class CommentController {
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
-    @PostMapping
+    @PutMapping
     public ResponseEntity<Comment> updateComment(@RequestBody Comment comment) {
         // TODO Коммент может изменить только автор
         return ResponseEntity.ok(comment);

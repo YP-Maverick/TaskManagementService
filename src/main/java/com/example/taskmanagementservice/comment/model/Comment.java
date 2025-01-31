@@ -8,13 +8,13 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
 @Getter
 @Setter
 @Builder
-@Generated
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@Entity
 @Table(name = "comment")
 public class Comment {
 
