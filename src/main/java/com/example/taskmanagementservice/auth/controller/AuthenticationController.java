@@ -44,7 +44,6 @@ public class AuthenticationController {
         );
     }
 
-    // TODO Обновление токена
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthenticationResponse> refreshToken(
             HttpServletRequest request) {

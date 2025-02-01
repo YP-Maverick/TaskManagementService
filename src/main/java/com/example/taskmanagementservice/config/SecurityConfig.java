@@ -36,7 +36,8 @@ public class SecurityConfig {
                 authorizeHttpRequests(request -> request
                         .requestMatchers(
                                 "/api/v1/auth/login",
-                                "/api/v1/auth/register")
+                                "/api/v1/auth/register",
+                                "/api/v1/auth/refresh-token")
                         .permitAll()
                         .anyRequest().authenticated()).
 
@@ -54,19 +55,6 @@ public class SecurityConfig {
 
         return provider;
     }
-
-    // Алтернативный бин authenticationManager
-    /*@Bean
-    public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
-
-        authenticationManagerBuilder
-                .inMemoryAuthentication()
-                .withUser("user").password(passwordEncoder().encode("password")).roles("USER");
-
-        return authenticationManagerBuilder.build();
-    }*/
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

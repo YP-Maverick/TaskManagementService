@@ -14,8 +14,7 @@ public class AuthenticationRequest {
     String email;
 
     @NotBlank
-    @Pattern(
-    regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,32}$",
-    message = "Пароль должен содержать от 8 до 32 символов, буквы и цифры.")
+    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{8,32}$",
+             message = "Пароль должен содержать от 8 до 32 символов, буквы и цифры.")
     String password;
 }

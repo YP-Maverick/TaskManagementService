@@ -18,9 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -49,28 +46,14 @@ public class AuthenticationService {
             throw new AuthenticationException("Invalid username or password");
         }
 
-        String accessToken = jwtService.generateAccessToken(user.getEmail(),
-                Collections.emptyMap());
-        String refreshToken = jwtService.createRefreshToken(user.getEmail(),
-                Collections.emptyMap());
-
-        return AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return generateAuthResponse(userService.getUserByEmail(user.getEmail()));
     }
 
 
     public AuthenticationResponse refreshToken(
             HttpServletRequest request
     ) {
-
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (authHeader.isBlank() || !authHeader.startsWith("Bearer ")) {
-            throw new InvalidTokenFormatException("The token must be in the JWT format.");
-        }
-        String refreshToken = authHeader.substring(7);
+        String refreshToken = extractTokenFromHeader(request);
 
         String email = jwtService.extractUserName(refreshToken);
         if (email.isBlank() && email.isEmpty()) {
@@ -88,16 +71,24 @@ public class AuthenticationService {
         } else {
             jwtService.revokeRefreshToken(refreshToken);
         }
+        return generateAuthResponse(user);
+    }
 
-        String newAccessToken = jwtService.generateAccessToken(user.getEmail(),
-                Collections.emptyMap());
-        String newRefreshToken = jwtService.createRefreshToken(user.getEmail(),
-                Collections.emptyMap());
-
-
+    private AuthenticationResponse generateAuthResponse(User user) {
+        String accessToken = jwtService.generateAccessToken(user.getEmail(), user.getId());
+        String refreshToken = jwtService.createRefreshToken(user.getEmail(), user.getId());
         return AuthenticationResponse.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
+    }
+
+
+    public static String extractTokenFromHeader(HttpServletRequest request) {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header == null || header.isBlank() || !header.startsWith("Bearer ")) {
+            throw new InvalidTokenFormatException("Invalid authorization header format");
+        }
+        return header.substring(7);
     }
 }
