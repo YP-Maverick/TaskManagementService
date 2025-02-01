@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 @Service
@@ -37,32 +36,26 @@ public class JWTService {
 
     public String generateAccessToken(
             String username,
-            Map<String, Object> claims
+            Integer userId
     ) {
-
         return Jwts.builder()
-                .claims()
-                .add(claims)
+                .claim("user_id", userId.toString())
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessTokenDuration))
-                .and()
                 .signWith(getAccessKey())
                 .compact();
-
     }
 
     public String generateRefreshToken(
             String username,
-            Map<String, Object> claims
+            Integer userId
     ) {
         return Jwts.builder()
-                .claims()
-                .add(claims)
+                .claim("user_id", userId.toString())
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + refreshTokenDuration))
-                .and()
+                .expiration(new Date(System.currentTimeMillis() + accessTokenDuration))
                 .signWith(getAccessKey())
                 .compact();
     }
@@ -70,15 +63,6 @@ public class JWTService {
     private SecretKey getAccessKey() {
         byte[] keyBytes = Decoders.BASE64.decode(accessSecretKey);
         return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    public String extractUserName(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimResolver.apply(claims);
     }
 
     private Claims extractAllClaims(String token) {
@@ -89,13 +73,30 @@ public class JWTService {
                 .getPayload();
     }
 
-    public boolean validateAccessToken(String token, UserDetails userDetails) {
+    private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimResolver.apply(claims);
+    }
+
+    public String extractUserName(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("user_id", Long.class));
+    }
+
+    public boolean validateAccessToken(String token,
+                                       UserDetails userDetails
+    ) {
         final String userName = extractUserName(token);
 
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    public boolean validateRefreshToken(String token, UserDetails userDetails) {
+    public boolean validateRefreshToken(String token,
+                                        UserDetails userDetails
+    ) {
         String userName = extractUserName(token);
         Token storedToken = jwtRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException("Refresh-токен не найден в базе данных"));
@@ -119,13 +120,10 @@ public class JWTService {
                         && !token.expired)
                 .toList();
 
-        userTokens.forEach(token -> {
-            token.setRevoked(true);
-        });
+        userTokens.forEach(token -> token.setRevoked(true));
 
         jwtRepository.saveAll(userTokens);
     }
-
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date(System.currentTimeMillis()));
@@ -147,8 +145,8 @@ public class JWTService {
         );
     }
 
-    public String createRefreshToken(String username, Map<String, Object> claims) {
-        String refreshToken = generateRefreshToken(username, claims);
+    public String createRefreshToken(String username, Integer userId) {
+        String refreshToken = generateRefreshToken(username, userId);
         saveRefreshToken(refreshToken);
         return refreshToken;
     }

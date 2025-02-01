@@ -1,5 +1,7 @@
 package com.example.taskmanagementservice.task.controller;
 
+import com.example.taskmanagementservice.task.model.TaskPriority;
+import com.example.taskmanagementservice.task.model.TaskStatus;
 import com.example.taskmanagementservice.task.request.CreateTaskRequest;
 import com.example.taskmanagementservice.task.model.TaskMapper;
 import com.example.taskmanagementservice.task.dto.TaskDto;
@@ -10,6 +12,10 @@ import com.example.taskmanagementservice.task.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -63,7 +69,6 @@ public class TaskController {
         );
     }
 
-
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskDto> getTaskById(@PathVariable Long taskId)
@@ -77,8 +82,28 @@ public class TaskController {
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
-        return ResponseEntity.ok(List.of());
+    public ResponseEntity<Page<TaskDto>> getAllTasks(
+            @RequestParam(required = false) TaskStatus status,
+            @RequestParam(required = false) TaskPriority priority,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,desc") String[] sort) {
+
+        Sort.Direction direction = sort[1].equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(direction, sort[0])
+        );
+
+        // Получаем отфильтрованные данные
+        Page<Task> tasks = taskService.getAllTasks(status, priority, pageable);
+
+        // Конвертируем в DTO
+        return ResponseEntity.ok(tasks.map(taskMapper::toDto));
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")

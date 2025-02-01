@@ -1,17 +1,23 @@
 package com.example.taskmanagementservice.task.service;
 
+import com.example.taskmanagementservice.exception.AuthenticationException;
 import com.example.taskmanagementservice.exception.NotAuthorException;
 import com.example.taskmanagementservice.exception.NotFoundException;
 import com.example.taskmanagementservice.task.model.Task;
 import com.example.taskmanagementservice.task.model.TaskMapper;
+import com.example.taskmanagementservice.task.model.TaskPriority;
 import com.example.taskmanagementservice.task.model.TaskStatus;
 import com.example.taskmanagementservice.task.repository.TaskRepository;
+import com.example.taskmanagementservice.task.repository.TaskSpecifications;
 import com.example.taskmanagementservice.task.request.CreateTaskRequest;
 import com.example.taskmanagementservice.task.request.UpdateTaskRequest;
 import com.example.taskmanagementservice.user.model.User;
 import com.example.taskmanagementservice.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -88,7 +94,6 @@ public class TaskServiceImpl implements TaskService {
         User performer = findPerformerById(request.getPerformerId());
 
         Task existingTask = findTaskById(taskId);
-        // TODO Выброс 404
 
         validateAuthorEmail(existingTask.getAuthor().getEmail(), author.getEmail());
         Task updatedTask = createUpdatedTask(request, author, performer, taskId);
@@ -98,9 +103,23 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task updateTaskStatus(Long taskId, TaskStatus status) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new NotFoundException("Task with id " + taskId + " not found."));
 
-        // TODO Реализовать логику
-        return null;
+        validateTaskOwnership(task);
+
+        task.setStatus(status);
+        return taskRepository.save(task);
+    }
+
+    private void validateTaskOwnership(Task task) {
+        Integer currentUserId = getCurrentUser().getId();
+        Integer authorId = task.getAuthor().getId();
+        Integer performerId = task.getPerformer().getId();
+
+        if (!currentUserId.equals(authorId) && !currentUserId.equals(performerId)) {
+            throw new AuthenticationException("Only task author or performer can update the status");
+        }
     }
 
     @Override
@@ -112,10 +131,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> getAllTasks() {
-        //TODO Добавить фильтрацию
+    public Page<Task> getAllTasks(TaskStatus status, TaskPriority priority, Pageable pageable) {
+        Specification<Task> spec = (root, query, cb) -> null;
+        spec = spec.and(TaskSpecifications.withStatus(status))
+                .and(TaskSpecifications.withPriority(priority));
 
-        return taskRepository.findAll();
+        return taskRepository.findAll(spec, pageable);
     }
 
     @Override
