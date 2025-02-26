@@ -1,19 +1,22 @@
 package com.example.taskmanagementservice.comment.dto;
 
-import lombok.Builder;
-import lombok.Value;
+import com.example.taskmanagementservice.user.dto.UserDto;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Value
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class CommentDto {
 
-    Long commentId;
-
-    Long taskId;
-
-    String content;
-
-    LocalDateTime timestamp;
+    private Long commentId;
+    private UserDto author;
+    private String content;
+    private LocalDateTime timestamp;
+    private List<CommentDto> replies;
 }
+

@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalDateTime;
 
 @Getter
@@ -13,10 +15,11 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = {"parentComment", "replies"})
 @Entity
 @Table(name = "comment")
 public class Comment {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,21 +30,24 @@ public class Comment {
     private Task task;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "commentator_id", nullable = false)
-    private User commentator;
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
 
     @NotBlank(message = "Content is mandatory")
     @Column(nullable = false, length = 2500)
     private String content;
 
-    @Column(name = "timestamp", nullable = false)
-    private LocalDateTime timestamp;
+    @Builder.Default
+    private boolean isEdited = false;
 
-    //TODO Вложенность комментариев
-    /*@ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
+    @Column(name = "timestamp", nullable = false)
+    private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
 
-    @Transient
-    private List<Comment> children = new ArrayList<>();*/
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Comment> replies = new ArrayList<>();
 }
