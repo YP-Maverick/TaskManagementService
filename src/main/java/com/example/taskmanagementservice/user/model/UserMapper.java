@@ -3,6 +3,7 @@ package com.example.taskmanagementservice.user.model;
 import com.example.taskmanagementservice.auth.request.AuthenticationRequest;
 import com.example.taskmanagementservice.auth.request.RegistrationRequest;
 import com.example.taskmanagementservice.auth.request.RegistrationResponse;
+import com.example.taskmanagementservice.user.dto.UserDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -25,4 +26,9 @@ public interface UserMapper {
     @Mapping(source = "user.email", target = "email")
     @Mapping(source = "user.role", target = "role")
     RegistrationResponse toRegistrationResponse(User user);
+
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "email", source = "email")
+    @Mapping(target = "role", source = "role")
+    UserDto toDto(User user);
 }
