@@ -16,6 +16,24 @@ import lombok.*;
 @Table(name = "task")
 public class Task {
 
+    /**
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+
+    + Надо добавить в парамметры spring.jpa.properties.hibernate.id.uuid_representation=POSTGRESQL_UUID
+    */
+
+    /**
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "obfuscated_id_gen")
+    @GenericGenerator(
+        name = "obfuscated_id_gen",
+        strategy = "com.yourpackage.ObfuscatedIdGenerator"
+    )
+    */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -41,7 +59,4 @@ public class Task {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performer_id", nullable = false)
     private User performer;
-
-    /*@OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Comment> comments;*/
 }

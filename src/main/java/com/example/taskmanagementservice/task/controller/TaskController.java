@@ -31,6 +31,7 @@ public class TaskController {
     private final TaskService taskService;
     private final TaskMapper taskMapper;
 
+
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<TaskDto> createTask(
@@ -44,27 +45,25 @@ public class TaskController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @PutMapping("/{taskId}")
+    @PutMapping
     public ResponseEntity<TaskDto> updateTask(
-            @PathVariable Long taskId,
             @Valid @RequestBody UpdateTaskRequest request
     ) {
         return ResponseEntity.ok(
                 taskMapper.toDto(
-                        taskService.updateTask(taskId, request)
+                        taskService.updateTask(request)
                 )
         );
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
-    @PutMapping("/{taskId}/status")
+    @PutMapping("/status")
     public ResponseEntity<TaskDto> updateTaskStatus(
-            @PathVariable Long taskId,
             @RequestBody @Valid UpdateTaskStatusRequest request
     ) {
         return ResponseEntity.ok(
                 taskMapper.toDto(
-                        taskService.updateTaskStatus(taskId, request.getStatus())
+                        taskService.updateTaskStatus(request.getTaskId(), request.getStatus())
                 )
         );
     }
@@ -107,7 +106,7 @@ public class TaskController {
     }
 
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
-    @GetMapping("/me/performer")
+    @GetMapping("/performer")
     public ResponseEntity<List<TaskDto>> getTasksForPerformer() {
         return ResponseEntity.ok(
                 taskMapper.toDtoList(
@@ -117,7 +116,7 @@ public class TaskController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @GetMapping("/me/author")
+    @GetMapping("/author")
     public ResponseEntity<List<TaskDto>> getTasksForAuthor() {
         return ResponseEntity.ok(
                 taskMapper.toDtoList(

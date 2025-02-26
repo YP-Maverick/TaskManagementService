@@ -14,18 +14,13 @@ public interface TaskService {
 
     Task createTask(CreateTaskRequest request);
 
-    Task updateTask(Long taskId, UpdateTaskRequest request);
-
-    Task updateTaskStatus(Long taskId, TaskStatus status);
-
     Task getTaskById(Long taskId);
-
     Page<Task> getAllTasks(TaskStatus status, TaskPriority priority, Pageable pageable);
-
     List<Task> getTasksForPerformer();
-
     List<Task> getTasksForAuthor();
 
-    void deleteTask(Long taskId);
+    Task updateTask(UpdateTaskRequest request);
+    Task updateTaskStatus(Long taskId, TaskStatus status);
 
+    void deleteTask(Long taskId);
 }

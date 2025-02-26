@@ -36,6 +36,7 @@ public class TaskServiceImpl implements TaskService {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
+
     private void checkUserByEmail(String email) {
         userRepository.findByEmail(email).orElseThrow(
                 () -> new NotFoundException("User not found")
@@ -54,16 +55,6 @@ public class TaskServiceImpl implements TaskService {
         );
     }
 
-    private Task createUpdatedTask(UpdateTaskRequest request, User author, User performer, Long taskId) {
-        return Task.builder()
-                .id(taskId)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .status(request.getStatus())
-                .author(author)
-                .performer(performer)
-                .build();
-    }
 
     private void validateAuthorEmail(String taskEmail, String authorEmail) {
         if (!taskEmail.equals(authorEmail)) {
@@ -88,21 +79,33 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task updateTask(Long taskId, UpdateTaskRequest request) {
+    public Task updateTask(UpdateTaskRequest request) {
+        User requester = getCurrentUser();
+        checkUserByEmail(requester.getEmail());
 
-        User author = getCurrentUser();
         User performer = findPerformerById(request.getPerformerId());
 
-        Task existingTask = findTaskById(taskId);
+        Task existingTask = findTaskById(request.getTaskId());
+        validateAuthorEmail(existingTask.getAuthor().getEmail(), requester.getEmail());
 
-        validateAuthorEmail(existingTask.getAuthor().getEmail(), author.getEmail());
-        Task updatedTask = createUpdatedTask(request, author, performer, taskId);
+        Task updatedTask = Task.builder()
+                .id(existingTask.getId())
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .priority(request.getPriority())
+                .status(request.getStatus())
+                .author(existingTask.getAuthor())
+                .performer(performer)
+                .build();
 
         return taskRepository.save(updatedTask);
     }
 
     @Override
     public Task updateTaskStatus(Long taskId, TaskStatus status) {
+        User requester = getCurrentUser();
+        checkUserByEmail(requester.getEmail());;
+
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Task with id " + taskId + " not found."));
 
@@ -124,6 +127,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task getTaskById(Long taskId) {
+        User requester = getCurrentUser();
+        checkUserByEmail(requester.getEmail());
+
         return taskRepository.findById(taskId).orElseThrow(
                 () -> new NotFoundException(
                         "Task with id " + taskId + " not found.")
@@ -132,6 +138,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Page<Task> getAllTasks(TaskStatus status, TaskPriority priority, Pageable pageable) {
+        User requester = getCurrentUser();
+        checkUserByEmail(requester.getEmail());
+
         Specification<Task> spec = (root, query, cb) -> null;
         spec = spec.and(TaskSpecifications.withStatus(status))
                 .and(TaskSpecifications.withPriority(priority));
@@ -152,10 +161,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteTask(Long taskId) {
-        User author = getCurrentUser();
+        User requester = getCurrentUser();
+        checkUserByEmail(requester.getEmail());
+
         Task existingTask = findTaskById(taskId);
 
-        validateAuthorEmail(existingTask.getAuthor().getEmail(), author.getEmail());
+        validateAuthorEmail(existingTask.getAuthor().getEmail(), requester.getEmail());
         taskRepository.delete(getTaskById(taskId));
     }
 }
