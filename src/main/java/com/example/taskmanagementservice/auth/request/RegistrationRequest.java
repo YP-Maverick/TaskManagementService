@@ -1,6 +1,7 @@
 package com.example.taskmanagementservice.auth.request;
 
 import com.example.taskmanagementservice.user.model.Role;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -13,6 +14,7 @@ public class RegistrationRequest {
 
     @NotBlank
     @Email
+    @Schema(description = "Почта", example = "email@example.ex")
     String email;
 
     @NotBlank
