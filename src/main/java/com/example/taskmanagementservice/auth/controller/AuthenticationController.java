@@ -7,11 +7,17 @@ import com.example.taskmanagementservice.auth.request.RegistrationResponse;
 import com.example.taskmanagementservice.auth.service.AuthenticationService;
 import com.example.taskmanagementservice.user.model.User;
 import com.example.taskmanagementservice.user.model.UserMapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+@Slf4j
+@Tag(name = "Auth",
+    description = "Регистрация и аутентификация, обновление токенов, выход")
 
 @RestController
 @RequestMapping("/api/v1/auth")
