@@ -9,6 +9,13 @@ import com.example.taskmanagementservice.task.model.Task;
 import com.example.taskmanagementservice.task.request.UpdateTaskRequest;
 import com.example.taskmanagementservice.task.request.UpdateTaskStatusRequest;
 import com.example.taskmanagementservice.task.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +30,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
+@Tag(name = "Task", description = "Управление задачами")
+
 @RestController
 @RequestMapping("/api/v1/tasks")
 @RequiredArgsConstructor
@@ -32,6 +41,19 @@ public class TaskController {
     private final TaskMapper taskMapper;
 
 
+    @Operation(
+            summary = "Создание новой задачи",
+            description = "Создает новую задачу на основе предоставленных данных. Доступно только для администраторов.",
+            security = @SecurityRequirement(name = "Bearer Token Auth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Задача успешно создана",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
+            @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
+            @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
+    })
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<TaskDto> createTask(
@@ -44,6 +66,19 @@ public class TaskController {
         );
     }
 
+    @Operation(
+            summary = "Обновление задачи",
+            description = "Позволяет обновить поля задачи кроме id автора. Доступно только для автора.",
+            security = @SecurityRequirement(name = "Bearer Token Auth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Задача успешно обновлена",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
+            @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
+            @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
+    })
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping
     public ResponseEntity<TaskDto> updateTask(
@@ -56,6 +91,21 @@ public class TaskController {
         );
     }
 
+
+    @Operation(
+            summary = "Обновление статуса задачи",
+            description = "Позволяет обновить статус задачи по id" +
+                    " Доступно только для авторов и исполнителей.",
+            security = @SecurityRequirement(name = "Bearer Token Auth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Задача успешно обновлена",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
+            @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
+            @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
+    })
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     @PutMapping("/status")
     public ResponseEntity<TaskDto> updateTaskStatus(
@@ -68,6 +118,20 @@ public class TaskController {
         );
     }
 
+    @Operation(
+            summary = "Получение задачи",
+            description = "Позволяет получить задачу по id" +
+                    " Доступно только для администраторов.",
+            security = @SecurityRequirement(name = "Bearer Token Auth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Задача успешно получена",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
+            @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
+            @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
+    })
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskDto> getTaskById(@PathVariable Long taskId)
@@ -79,6 +143,20 @@ public class TaskController {
         );
     }
 
+    @Operation(
+            summary = "Получение всех задач",
+            description = "Позволяет получить все задачи с пагинацией и сортировкой по статусу и приоритету." +
+                    " Доступно только для администраторов.",
+            security = @SecurityRequirement(name = "Bearer Token Auth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Задачи успешно получены",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
+            @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
+            @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
+    })
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<Page<TaskDto>> getAllTasks(
@@ -105,6 +183,21 @@ public class TaskController {
         return ResponseEntity.ok(tasks.map(taskMapper::toDto));
     }
 
+
+    @Operation(
+            summary = "Получение задач исполнителем",
+            description = "Позволяет получить задачи, для которых текущий пользователь является исполнителем." +
+                    " Доступно только для любых авторизованных пользователей.",
+            security = @SecurityRequirement(name = "Bearer Token Auth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Задачи успешно получены",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
+            @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
+            @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
+    })
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     @GetMapping("/performer")
     public ResponseEntity<List<TaskDto>> getTasksForPerformer() {
@@ -115,6 +208,21 @@ public class TaskController {
         );
     }
 
+
+    @Operation(
+            summary = "Получение задач автором",
+            description = "Позволяет получить задачи, автором которых является текущий пользователь." +
+                          " Доступно только для администраторов.",
+            security = @SecurityRequirement(name = "Bearer Token Auth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Задачи успешно получены",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
+            @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
+            @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
+    })
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/author")
     public ResponseEntity<List<TaskDto>> getTasksForAuthor() {
@@ -125,6 +233,19 @@ public class TaskController {
         );
     }
 
+    @Operation(
+            summary = "Удаление задачи",
+            description = "Позволяет удалить задачу по id. Доступно только для автора.",
+            security = @SecurityRequirement(name = "Bearer Token Auth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Задача успешно удалена",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
+            @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
+            @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
+    })
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
