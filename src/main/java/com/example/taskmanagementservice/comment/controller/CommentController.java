@@ -5,7 +5,6 @@ import com.example.taskmanagementservice.comment.dto.CreateCommentRequest;
 import com.example.taskmanagementservice.comment.dto.UpdateCommentRequest;
 import com.example.taskmanagementservice.comment.model.CommentMapper;
 import com.example.taskmanagementservice.comment.service.CommentService;
-import com.example.taskmanagementservice.task.dto.TaskDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -68,9 +67,10 @@ public class CommentController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Ответ на комментарий успешно создан",
+            @ApiResponse(
+                    responseCode = "200", description = "Ответ на комментарий успешно создан",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommentDto.class))),
+                    schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа"),
@@ -100,9 +100,10 @@ public class CommentController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Комментарии успешно получены",
+            @ApiResponse(
+                    responseCode = "200", description = "Комментарии успешно получены",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommentDto.class))),
+                    schema = @Schema(implementation = List.class))),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа"),
             @ApiResponse(responseCode = "404", description = "Задача не найдена")
@@ -128,7 +129,7 @@ public class CommentController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Комментарий успешно получен",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommentDto.class))),
+                    schema = @Schema(implementation = CommentDto.class))),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа"),
             @ApiResponse(responseCode = "404", description = "Комментарий не найден")
@@ -178,9 +179,9 @@ public class CommentController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Задача успешно удалена",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(
+                    responseCode = "204", description = "Задача успешно удалена",
+                    content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")

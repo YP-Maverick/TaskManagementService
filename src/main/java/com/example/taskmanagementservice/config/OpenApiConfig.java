@@ -112,7 +112,6 @@ public class OpenApiConfig {
                         return isUserTaskComment1 ? -1 : 1;
                     }
 
-                    // Все остальные схемы сортируются по алфавиту
                     return name1.compareTo(name2);
                 });
 

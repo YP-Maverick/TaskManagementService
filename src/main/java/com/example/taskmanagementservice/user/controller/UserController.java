@@ -35,6 +35,7 @@ public class UserController {
     private final UserMapper userMapper;
 
 
+    //TODO Page<UserDto>
     @Operation(
             summary = "Получение всех пользователей",
             description = "Позволяет получить всех пользователей с пагинацией и сортировкой по id." +
@@ -42,9 +43,10 @@ public class UserController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Задачи успешно получены",
+            @ApiResponse(
+                    responseCode = "200", description = "Задачи успешно получены",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+                    schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
@@ -79,9 +81,10 @@ public class UserController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Пользователь успешно удалена",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(
+                    responseCode = "204", description = "Пользователь успешно удалена",
+                    content = @Content(mediaType = "application/json")
+            ),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")

@@ -49,7 +49,6 @@ public class AuthenticationService {
         return generateAuthResponse(userService.getUserByEmail(user.getEmail()));
     }
 
-
     public AuthenticationResponse refreshToken(
             HttpServletRequest request
     ) {
@@ -82,7 +81,6 @@ public class AuthenticationService {
                 .refreshToken(refreshToken)
                 .build();
     }
-
 
     public static String extractTokenFromHeader(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);

@@ -47,9 +47,11 @@ public class TaskController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Задача успешно создана",
+            @ApiResponse(
+                    responseCode = "200", description = "Задача успешно создана",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+                    schema = @Schema(implementation = TaskDto.class))
+            ),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
@@ -72,9 +74,11 @@ public class TaskController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Задача успешно обновлена",
+            @ApiResponse(
+                    responseCode = "200", description = "Задача успешно обновлена",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+                    schema = @Schema(implementation = TaskDto.class))
+            ),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
@@ -99,9 +103,11 @@ public class TaskController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Задача успешно обновлена",
+            @ApiResponse(
+                    responseCode = "200", description = "Задача успешно обновлена",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+                    schema = @Schema(implementation = TaskDto.class))
+            ),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
@@ -125,9 +131,11 @@ public class TaskController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Задача успешно получена",
+            @ApiResponse(
+                    responseCode = "200", description = "Задача успешно получена",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+                    schema = @Schema(implementation = TaskDto.class))
+            ),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
@@ -143,6 +151,7 @@ public class TaskController {
         );
     }
 
+    //TODO Page<TaskDto>
     @Operation(
             summary = "Получение всех задач",
             description = "Позволяет получить все задачи с пагинацией и сортировкой по статусу и приоритету." +
@@ -150,9 +159,10 @@ public class TaskController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Задачи успешно получены",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(
+                    responseCode = "200", description = "Задачи успешно получены",
+                    content = @Content(mediaType = "application/json")
+            ),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
@@ -193,7 +203,8 @@ public class TaskController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Задачи успешно получены",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+                            schema = @Schema(implementation = TaskDto.class))
+            ),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
@@ -209,6 +220,7 @@ public class TaskController {
     }
 
 
+    //TODO List<TaskDto>
     @Operation(
             summary = "Получение задач автором",
             description = "Позволяет получить задачи, автором которых является текущий пользователь." +
@@ -216,9 +228,11 @@ public class TaskController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Задачи успешно получены",
+            @ApiResponse(
+                    responseCode = "200", description = "Задачи успешно получены",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+                    schema = @Schema(implementation = TaskDto.class))
+            ),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
@@ -239,9 +253,10 @@ public class TaskController {
             security = @SecurityRequirement(name = "Bearer Token Auth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Задача успешно удалена",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = TaskDto.class))),
+            @ApiResponse(
+                    responseCode = "204", description = "Задача успешно удалена",
+                    content = @Content(mediaType = "application/json")
+            ),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
             @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
             @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа")
