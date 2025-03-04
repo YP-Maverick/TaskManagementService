@@ -6,16 +6,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 @Builder
 @AllArgsConstructor
 public class RegistrationResponse {
 
-    private Integer id;
+    Integer id;
 
-    @Schema(description = "Почта", example = "email@example.ex")
-    private String email;
+    @Schema(description = "Email", example = "email@example.ex")
+    String email;
 
-    private Role role;
+    Role role;
 }

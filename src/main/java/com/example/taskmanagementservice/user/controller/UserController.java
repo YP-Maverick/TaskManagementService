@@ -1,6 +1,5 @@
 package com.example.taskmanagementservice.user.controller;
 
-import com.example.taskmanagementservice.task.dto.TaskDto;
 import com.example.taskmanagementservice.user.dto.UserDto;
 import com.example.taskmanagementservice.user.model.Role;
 import com.example.taskmanagementservice.user.model.User;
@@ -34,7 +33,6 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-
     //TODO Page<UserDto>
     @Operation(
             summary = "Получение всех пользователей",
@@ -57,7 +55,11 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id,desc") String[] sort,
-            @RequestParam(required = false) Role role) { // Добавлен параметр role
+            @RequestParam(required = false) Role role
+    ) {
+        log.info("Received getAllTasks. page={}, size={}, sort={}, role={} ",
+                 page, size, sort, role
+        );
 
         Sort.Direction direction = sort[1].equalsIgnoreCase("asc")
                 ? Sort.Direction.ASC
@@ -91,6 +93,8 @@ public class UserController {
     })
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
+        log.info("Received deleteUser. userId={}", userId);
+
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }

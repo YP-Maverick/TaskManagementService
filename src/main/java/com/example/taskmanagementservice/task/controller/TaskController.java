@@ -61,6 +61,8 @@ public class TaskController {
     public ResponseEntity<TaskDto> createTask(
             @Valid @RequestBody CreateTaskRequest request
     ) {
+        log.info("Received createTask request. request={}", request);
+
         return ResponseEntity.ok(
                 taskMapper.toDto(
                         taskService.createTask(request)
@@ -88,6 +90,8 @@ public class TaskController {
     public ResponseEntity<TaskDto> updateTask(
             @Valid @RequestBody UpdateTaskRequest request
     ) {
+        log.info("Received updateTask request. request={}", request);
+
         return ResponseEntity.ok(
                 taskMapper.toDto(
                         taskService.updateTask(request)
@@ -117,6 +121,8 @@ public class TaskController {
     public ResponseEntity<TaskDto> updateTaskStatus(
             @RequestBody @Valid UpdateTaskStatusRequest request
     ) {
+        log.info("Received updateTaskStatus. request={}", request);
+
         return ResponseEntity.ok(
                 taskMapper.toDto(
                         taskService.updateTaskStatus(request.getTaskId(), request.getStatus())
@@ -144,6 +150,8 @@ public class TaskController {
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskDto> getTaskById(@PathVariable Long taskId)
     {
+        log.info("Received getTaskById. taskId={}", taskId);
+
         return ResponseEntity.ok(
                 taskMapper.toDto(
                         taskService.getTaskById(taskId)
@@ -174,7 +182,11 @@ public class TaskController {
             @RequestParam(required = false) TaskPriority priority,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id,desc") String[] sort) {
+            @RequestParam(defaultValue = "id,desc") String[] sort
+    ) {
+        log.info("Received getAllTasks. status={}, priority={}, page={}, size={}, sort={} ",
+                status, priority, page, size, sort
+        );
 
         Sort.Direction direction = sort[1].equalsIgnoreCase("asc")
                 ? Sort.Direction.ASC
@@ -186,10 +198,8 @@ public class TaskController {
                 Sort.by(direction, sort[0])
         );
 
-        // Получаем отфильтрованные данные
         Page<Task> tasks = taskService.getAllTasks(status, priority, pageable);
 
-        // Конвертируем в DTO
         return ResponseEntity.ok(tasks.map(taskMapper::toDto));
     }
 
@@ -212,6 +222,8 @@ public class TaskController {
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     @GetMapping("/performer")
     public ResponseEntity<List<TaskDto>> getTasksForPerformer() {
+        log.info("Received getTasksForPerformer.");
+
         return ResponseEntity.ok(
                 taskMapper.toDtoList(
                         taskService.getTasksForPerformer()
@@ -240,6 +252,8 @@ public class TaskController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/author")
     public ResponseEntity<List<TaskDto>> getTasksForAuthor() {
+        log.info("Received getTasksForAuthor().");
+
         return ResponseEntity.ok(
                 taskMapper.toDtoList(
                         taskService.getTasksForAuthor()
@@ -264,6 +278,8 @@ public class TaskController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
+        log.info("Received deleteTask. taskId={}", taskId);
+
         taskService.deleteTask(taskId);
         return ResponseEntity.noContent().build();
     }

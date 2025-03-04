@@ -5,17 +5,18 @@ import com.example.taskmanagementservice.comment.repository.CommentRepository;
 import com.example.taskmanagementservice.exception.AuthenticationException;
 import com.example.taskmanagementservice.exception.NotFoundException;
 import com.example.taskmanagementservice.task.model.Task;
-import com.example.taskmanagementservice.task.repository.TaskRepository;
 import com.example.taskmanagementservice.task.service.TaskService;
 import com.example.taskmanagementservice.user.model.User;
 import com.example.taskmanagementservice.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
@@ -45,7 +46,12 @@ public class CommentServiceImpl implements CommentService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
+
+        log.info("Successfully createComment with taskId={}, commentId={} by userId={}, email:{}",
+                savedComment.getTask().getId(), savedComment.getCommentId(), commentator.getId(), commentator.getEmail()
+        );
+        return savedComment;
     }
 
     public Comment createReplyComment(Long taskId, Long parentCommentId, String content) {
@@ -67,7 +73,11 @@ public class CommentServiceImpl implements CommentService {
                 .parentComment(parentComment)
                 .build();
 
-        return commentRepository.save(reply);
+        Comment savedComment = commentRepository.save(reply);
+        log.info("Successfully createReplyComment with taskId={}, commentId={} by userId={}, email:{}",
+                savedComment.getTask().getId(), savedComment.getCommentId(), commentator.getId(), commentator.getEmail()
+        );
+        return savedComment;
     }
 
     public List<Comment> getCommentsByTaskId(Long taskId) {
@@ -76,39 +86,54 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment getCommentById(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(
+        User requester = userService.getCurrentUser();
+
+        Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new NotFoundException("Comment with id " + commentId + " not found.")
         );
+
+        log.info("Successfully getCommentById with taskId={}, commentId={} by userId={}, email:{}",
+                comment.getTask().getId(), commentId, requester.getId(), requester.getEmail()
+        );
+        return comment;
     }
 
     @Override
     public Comment updateComment(Long commentId, String newContent) {
 
-        User currentUser = userService.getCurrentUser();
+        User requester = userService.getCurrentUser();
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Comment with id " + commentId + " not found."));
 
-        if (!isCommentAuthor(currentUser, comment)) {
+        if (!isCommentAuthor(requester, comment)) {
             throw new AuthenticationException(
                     "User must be the author of the comment with id " + commentId + " or an administrator."
             );
         }
 
         comment.setContent(newContent);
-        return commentRepository.save(comment);
+        Comment updatedComment = commentRepository.save(comment);
+
+        log.info("Successfully updateComment with taskId={}, commentId={} by userId={}, email:{}",
+                comment.getTask().getId(), commentId, requester.getId(), requester.getEmail()
+        );
+        return updatedComment;
     }
 
     @Override
     public void deleteComment(Long commentId) {
-        User currentUser = userService.getCurrentUser();
+        User requester = userService.getCurrentUser();
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Comment with id " + commentId + " not found."));
 
-        if (!isCommentOwnerOrIsAdmin(currentUser, comment)) {
+        if (!isCommentOwnerOrIsAdmin(requester, comment)) {
             throw new AuthenticationException(
                     "User must be the author of the comment with id " + commentId + " or an administrator."
             );
         }
         commentRepository.deleteById(commentId);
+        log.info("Successfully deleteComment with taskId={}, commentId={} by userId={}, email:{}",
+                comment.getTask().getId(), commentId, requester.getId(), requester.getEmail()
+        );
     }
 }

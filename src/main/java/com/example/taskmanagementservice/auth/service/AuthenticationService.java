@@ -46,6 +46,8 @@ public class AuthenticationService {
             throw new AuthenticationException("Invalid username or password");
         }
 
+        log.info("Successfully login with email={}", user.getUsername());
+
         return generateAuthResponse(userService.getUserByEmail(user.getEmail()));
     }
 
@@ -70,6 +72,8 @@ public class AuthenticationService {
         } else {
             jwtService.revokeRefreshToken(refreshToken);
         }
+        log.info("Successfully refreshToken");
+
         return generateAuthResponse(user);
     }
 
@@ -82,7 +86,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public static String extractTokenFromHeader(HttpServletRequest request) {
+    private static String extractTokenFromHeader(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header == null || header.isBlank() || !header.startsWith("Bearer ")) {
             throw new InvalidTokenFormatException("Invalid authorization header format");

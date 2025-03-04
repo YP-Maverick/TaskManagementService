@@ -36,12 +36,27 @@ public class UserServiceImpl implements UserService {
         ).getRole().equals(Role.ROLE_ADMIN);
     }
 
+    /**
+     * Проверяет, может ли текущий пользователь удалить указанного пользователя.
+     * Удаление разрешено, если:
+     * 1. Текущий пользователь — администратор.
+     * 2. Текущий пользователь удаляет себя.
+     */
+    private boolean canDeleteUser(Integer userId) {
+        User currentUser = getCurrentUser();
+        return currentUser.getRole().equals(Role.ROLE_ADMIN)
+                || currentUser.getId().equals(userId);
+    }
+
     @Override
     public User createUser(User user) {
-        log.info("Request to create or update a user.");
 
         try {
-            return userRepository.save(user);
+            User createdUser = userRepository.save(user);
+            log.info("Successfully createdUser with userId={}, email:{}",
+                    createdUser.getId(), createdUser.getEmail()
+            );
+            return createdUser;
         } catch (DataIntegrityViolationException e) {
             log.error("Duplicate. Request to create with already used email address for another user {}", user.getEmail());
             throw new DuplicateException("This email is already in use.");
@@ -50,20 +65,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByEmail(username).orElseThrow(
-                () -> new UsernameNotFoundException("user not found")
+        User user = userRepository.findByEmail(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found")
         );
+
+        log.info("Successfully loadUserByUsername with userId={}, email:{}",
+                user.getId(), user.getEmail()
+        );
+        return user;
     }
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("user not found")
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("User not found")
         );
+
+        log.info("Successfully getUserByEmail with userId={}, email:{}",
+                user.getId(), user.getEmail()
+        );
+        return user;
     }
 
     @Override
     public Page<User> getAllUsers(Pageable pageable, Role role) {
+        log.info("Successfully getUserByEmail with pageable={}, role:{}",
+                pageable, role
+        );
+
         if (role != null) {
             return userRepository.findByRole(role, pageable);
         } else {
@@ -83,17 +112,8 @@ public class UserServiceImpl implements UserService {
 
         jwtService.revokeAllUserRefreshTokens(user);
         userRepository.deleteById(userId);
-    }
-
-    /**
-     * Проверяет, может ли текущий пользователь удалить указанного пользователя.
-     * Удаление разрешено, если:
-     * 1. Текущий пользователь — администратор.
-     * 2. Текущий пользователь удаляет себя.
-     */
-    private boolean canDeleteUser(Integer userId) {
-        User currentUser = getCurrentUser();
-        return currentUser.getRole().equals(Role.ROLE_ADMIN)
-                || currentUser.getId().equals(userId);
+        log.info("Successfully deleteUser with userId={}, email:{}",
+                userId, user.getEmail()
+        );
     }
 }

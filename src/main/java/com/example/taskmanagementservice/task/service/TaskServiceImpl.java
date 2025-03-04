@@ -62,20 +62,36 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    private void validateTaskOwnership(Task task) {
+        Integer currentUserId = getCurrentUser().getId();
+        Integer authorId = task.getAuthor().getId();
+        Integer performerId = task.getPerformer().getId();
+
+        if (!currentUserId.equals(authorId) && !currentUserId.equals(performerId)) {
+            throw new AuthenticationException("Only task author or performer can update the status");
+        }
+    }
+
     @Override
     public Task createTask(CreateTaskRequest request) {
-        log.info("createTask");
-
         User author = getCurrentUser();
         checkUserByEmail(author.getEmail());
 
         User performer = findPerformerById(request.getPerformerId());
 
-        return taskRepository.save(
+
+        Task createdTask = taskRepository.save(
                 taskMapper.toTask(
                         request,
                         author,
                         performer));
+
+        log.info("Successfully createTask with taskId={} by userId={}, email:{}",
+                createdTask.getId(),
+                author.getId(),
+                author.getEmail()
+        );
+        return createdTask;
     }
 
     @Override
@@ -86,19 +102,23 @@ public class TaskServiceImpl implements TaskService {
         User performer = findPerformerById(request.getPerformerId());
 
         Task existingTask = findTaskById(request.getTaskId());
+
         validateAuthorEmail(existingTask.getAuthor().getEmail(), requester.getEmail());
 
-        Task updatedTask = Task.builder()
-                .id(existingTask.getId())
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .priority(request.getPriority())
-                .status(request.getStatus())
-                .author(existingTask.getAuthor())
-                .performer(performer)
-                .build();
+        existingTask.setTitle(request.getTitle());
+        existingTask.setDescription(request.getDescription());
+        existingTask.setPriority(TaskPriority.LOW);
+        existingTask.setStatus(TaskStatus.COMPLETED);
+        existingTask.setPerformer(performer);
 
-        return taskRepository.save(updatedTask);
+        Task updatedTask = taskRepository.save(existingTask);
+
+        log.info("Successfully updateTask with taskId={} by userId={} email:{}",
+                updatedTask.getId(),
+                requester.getId(),
+                requester.getEmail()
+        );
+        return updatedTask;
     }
 
     @Override
@@ -112,17 +132,13 @@ public class TaskServiceImpl implements TaskService {
         validateTaskOwnership(task);
 
         task.setStatus(status);
+
+        log.info("Successfully updateTaskStatus with taskId={} by userId={}, email:{}",
+                taskId,
+                requester.getId(),
+                requester.getEmail()
+        );
         return taskRepository.save(task);
-    }
-
-    private void validateTaskOwnership(Task task) {
-        Integer currentUserId = getCurrentUser().getId();
-        Integer authorId = task.getAuthor().getId();
-        Integer performerId = task.getPerformer().getId();
-
-        if (!currentUserId.equals(authorId) && !currentUserId.equals(performerId)) {
-            throw new AuthenticationException("Only task author or performer can update the status");
-        }
     }
 
     @Override
@@ -130,10 +146,17 @@ public class TaskServiceImpl implements TaskService {
         User requester = getCurrentUser();
         checkUserByEmail(requester.getEmail());
 
-        return taskRepository.findById(taskId).orElseThrow(
+        Task task = taskRepository.findById(taskId).orElseThrow(
                 () -> new NotFoundException(
                         "Task with id " + taskId + " not found.")
         );
+
+        log.info("Successfully getTaskById with taskId={} by userId={}, email:{}",
+                taskId,
+                requester.getId(),
+                requester.getEmail()
+        );
+        return task;
     }
 
     @Override
@@ -145,18 +168,35 @@ public class TaskServiceImpl implements TaskService {
         spec = spec.and(TaskSpecifications.withStatus(status))
                 .and(TaskSpecifications.withPriority(priority));
 
-        return taskRepository.findAll(spec, pageable);
+        Page<Task> taskPage = taskRepository.findAll(spec, pageable);
+
+        log.info("Successfully getAllTasks by userId={}, email:{}",
+                requester.getId(), requester.getEmail()
+        );
+        return taskPage;
     }
 
     @Override
     public List<Task> getTasksForAuthor() {
-        User currentUser = getCurrentUser();
-        return taskRepository.findByAuthor(currentUser);
+        User requester = getCurrentUser();
+
+        List<Task> tasks = taskRepository.findByAuthor(requester);
+
+        log.info("Successfully getTasksForAuthor by userId={}, email:{}",
+                requester.getId(), requester.getEmail()
+        );
+        return tasks;
     }
 
     public List<Task> getTasksForPerformer() {
-        User currentUser = getCurrentUser();
-        return taskRepository.findByPerformer(currentUser);
+        User requester = getCurrentUser();
+
+        List<Task> tasks = taskRepository.findByPerformer(requester);
+
+        log.info("Successfully getTasksForPerformer by userId={}, email:{}",
+                requester.getId(), requester.getEmail()
+        );
+        return tasks;
     }
 
     @Override
@@ -168,5 +208,9 @@ public class TaskServiceImpl implements TaskService {
 
         validateAuthorEmail(existingTask.getAuthor().getEmail(), requester.getEmail());
         taskRepository.delete(getTaskById(taskId));
+
+        log.info("Successfully deleteTask with taskId={} by userId={}, email:{}",
+                taskId, requester.getId(), requester.getEmail()
+        );
     }
 }

@@ -48,6 +48,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<RegistrationResponse> register(
             @Valid @RequestBody RegistrationRequest request) {
+        log.info("Received register. request={}", request);
 
         User user = userMapper.toUser(request);
         return ResponseEntity.ok(
@@ -70,6 +71,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(
             @Valid @RequestBody AuthenticationRequest request) {
+        log.info("Received login. request={}", request);
 
         User user = userMapper.toUser(request);
         return ResponseEntity.ok(
@@ -90,6 +92,7 @@ public class AuthenticationController {
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthenticationResponse> refreshToken(
             HttpServletRequest request) {
+        log.info("Received refreshToken. request={}", request);
 
         return  ResponseEntity.ok(
                 authenticationService.refreshToken(request)
