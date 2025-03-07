@@ -9,7 +9,7 @@
 		<relativePath/>
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>TaskManagementService</artifactId>
+	<artifactId>task-management-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>TaskManagementService</name>
 	<description>Demo project for Spring Boot</description>
@@ -163,6 +163,9 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+						<layers>
+							<enabled>true</enabled>
+						</layers>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -52,6 +52,8 @@ public class CommentController {
             @PathVariable Long taskId,
             @Valid @RequestBody CreateCommentRequest request
     ) {
+        log.info("Received createComment request. taskId={}, request={}",
+                taskId, request);
 
         return ResponseEntity.ok(
                 commentMapper.toDto(
@@ -83,6 +85,8 @@ public class CommentController {
             @PathVariable Long parentCommentId,
             @Valid @RequestBody CreateCommentRequest request
     ) {
+        log.info("Received createReplyComment request. taskId={}, parentCommentId={}, request={}",
+                taskId, parentCommentId, request);
 
         return ResponseEntity.ok(
                 commentMapper.toDto(
@@ -90,6 +94,36 @@ public class CommentController {
                                 taskId,
                                 parentCommentId,
                                 request.getContent())
+                )
+        );
+    }
+
+    @Operation(
+            summary = "Обновление комментария",
+            description = "Позволяет получить комментарий по его ID. Доступно только автору",
+            security = @SecurityRequirement(name = "Bearer Token Auth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Комментарий успешно обновлен",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CommentDto.class))),
+            @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
+            @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа"),
+            @ApiResponse(responseCode = "404", description = "Комментарий не найден")
+    })
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
+    @PutMapping("/comments/{commentId}")
+    public ResponseEntity<CommentDto> updateComment(
+            @PathVariable Long commentId,
+            @RequestBody UpdateCommentRequest request
+    ) {
+        log.info("Received updateTaskStatus. commentId={}, request={}",
+                commentId,
+                request);
+
+        return ResponseEntity.ok(
+                commentMapper.toDto(
+                        commentService.updateComment(commentId, request.getNewContent())
                 )
         );
     }
@@ -113,6 +147,8 @@ public class CommentController {
     public ResponseEntity<List<CommentDto>> getCommentsByTaskId(
             @PathVariable Long taskId
     ) {
+        log.info("Received getCommentsByTaskId. taskId={}", taskId);
+
         return ResponseEntity.ok(
                 commentMapper.toDtoList(
                     commentService.getCommentsByTaskId(taskId)
@@ -137,38 +173,11 @@ public class CommentController {
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     @GetMapping("/comments/{commentId}")
     public ResponseEntity<CommentDto> getCommentById(@PathVariable Long commentId) {
+        log.info("Received getCommentById. commentId={}", commentId);
 
         return ResponseEntity.ok(
                 commentMapper.toDto(
                         commentService.getCommentById(commentId)
-                )
-        );
-    }
-
-
-    @Operation(
-            summary = "Обновление комментария",
-            description = "Позволяет получить комментарий по его ID. Доступно только автору",
-            security = @SecurityRequirement(name = "Bearer Token Auth")
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Комментарий успешно обновлен",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CommentDto.class))),
-            @ApiResponse(responseCode = "401", description = "Необходима аутентификация"),
-            @ApiResponse(responseCode = "403", description = "Недостаточно прав доступа"),
-            @ApiResponse(responseCode = "404", description = "Комментарий не найден")
-    })
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
-    @PutMapping("/comments/{commentId}")
-    public ResponseEntity<CommentDto> updateComment(
-            @PathVariable Long commentId,
-            @RequestBody UpdateCommentRequest request
-    ) {
-
-        return ResponseEntity.ok(
-                commentMapper.toDto(
-                        commentService.updateComment(commentId, request.getNewContent())
                 )
         );
     }
@@ -189,6 +198,7 @@ public class CommentController {
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
     @DeleteMapping("/{taskId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
+        log.info("Received deleteComment. commentId={}", commentId);
 
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();

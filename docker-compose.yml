@@ -15,7 +15,7 @@ services:
 
   task-app:
     container_name: task-app
-    image: taskmanagementservice-task-app/java_app:1.0.0
+    image: task-management-service:0.0.1-SNAPSHOT
     build: .
     ports:
       - 9090:9090
@@ -26,6 +26,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
     depends_on:
       - task-db
+    volumes:
+      - ./src:/app/src
 
 volumes:
   pgdata: {}
