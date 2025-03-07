@@ -124,8 +124,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Task updateTaskStatus(Long taskId, TaskStatus status) {
         User requester = getCurrentUser();
-        checkUserByEmail(requester.getEmail());;
-
+        checkUserByEmail(requester.getEmail());
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Task with id " + taskId + " not found."));
 
