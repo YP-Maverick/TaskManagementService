@@ -1,5 +1,6 @@
 package com.example.taskmanagementservice.user.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,9 +25,11 @@ public class User implements UserDetails {
     private Integer id;
 
     @Column(unique = true)
+    @Schema(description = "Почта", example = "email@example.ex")
     private String email;
 
     private String password;
+
     private Role role;
 
     @Override

@@ -16,7 +16,7 @@ import lombok.Value;
 public class UpdateTaskRequest {
 
     @Positive
-    String id;
+    Long taskId;
 
     @Size(max = 255, message = "Title must not exceed 255 characters")
     String title;

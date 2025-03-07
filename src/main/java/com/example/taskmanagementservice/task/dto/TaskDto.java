@@ -31,6 +31,7 @@ public class TaskDto {
     @NotNull
     TaskPriority priority;
 
+    //TODO Автор id не нужен, его извлекаем из CurrentUser
     @Positive
     Long authorId;
 

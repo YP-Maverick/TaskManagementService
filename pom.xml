@@ -9,7 +9,7 @@
 		<relativePath/>
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>TaskManagementService</artifactId>
+	<artifactId>task-management-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>TaskManagementService</name>
 	<description>Demo project for Spring Boot</description>
@@ -117,6 +117,13 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.8.5</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -156,6 +163,9 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+						<layers>
+							<enabled>true</enabled>
+						</layers>
 				</configuration>
 			</plugin>
 		</plugins>

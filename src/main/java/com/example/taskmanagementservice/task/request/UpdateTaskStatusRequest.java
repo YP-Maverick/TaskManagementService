@@ -10,7 +10,7 @@ import lombok.Value;
 public class UpdateTaskStatusRequest {
 
     @NotNull
-    Integer taskId;
+    Long taskId;
 
     @NotNull(message = "Status is mandatory")
     TaskStatus status;

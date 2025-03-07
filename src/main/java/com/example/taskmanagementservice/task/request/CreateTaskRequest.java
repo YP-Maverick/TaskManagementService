@@ -29,7 +29,7 @@ public class CreateTaskRequest {
 
     @NotNull
     @Positive
-    Long authorId;
+    Integer authorId;
 
     @NotNull
     @Positive
